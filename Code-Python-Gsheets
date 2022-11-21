@@ -1,0 +1,73 @@
+from google.colab import auth
+from google.auth import default
+
+import gspread
+import pandas as pd
+
+#autenticating to google
+auth.authenticate_user()
+creds, _ = default()
+gc = gspread.authorize(creds)
+
+#defining my worksheet
+spreadsheet = gc.open('Students Grade - Class 10A')
+
+#Finding Data inside File "Students Grade - Class 10B"
+url = 'https://docs.google.com/spreadsheets/d/1-bJkcGEc_YWmAQYc8lLDj5WS_HupsXSsqeOnnIH6nIA/edit#gid=0'
+sh = gc.open_by_url(url)
+tab_name = 'Students'
+ws = sh.worksheet(tab_name)
+
+list_data = ws.get('A2:C10')
+print(list_data)
+
+
+#Finding Data inside File "Students Grade - Class 10A"
+url2 = 'https://docs.google.com/spreadsheets/d/1oaxCte5F67L_hzgzfjF1wH1YpC5p7nmdTFUQrmTYtOA/edit#gid=0'
+sh2 = gc.open_by_url(url2)
+tab_name2 = 'Students'
+ws2 = sh2.worksheet(tab_name2)
+list_data2 = ws2.get('A2:C10')
+print(list_data2)
+
+#"Students Grade - Class 10A" - Finding Empty Cell in "Grade-Summary" for data update
+tab_name3 = 'Grade-Summary'
+ws3 = sh2.worksheet(tab_name3)
+num_row = len(ws3.get_all_values()) + 1
+
+empty_row = 'A'+ str(num_row)
+print(f"First Sheet: New data input starts in {empty_row}")
+
+#Finding Cell Range For inputting data to Tab "Grade-Summary"
+add_data = list_data2
+new_row = int(len(add_data)) + int(num_row) - 1
+new_cell = 'C' + str(new_row)
+
+gs_range = empty_row + ':' + new_cell
+print(f"First Sheet: Range to input new data is {gs_range}")
+
+#Adding the data to the tab "Grade-Summary"
+ws3.update(str(gs_range), add_data)
+
+#For Tab "Students Grade - Class 10B" - Finding Empty Cell in "Grade-Summary" for data update
+tab_name3 = 'Grade-Summary'
+ws3 = sh2.worksheet(tab_name3)
+num_row2 = len(ws3.get_all_values()) + 1
+
+empty_row2 = 'A'+ str(num_row2)
+print(f"Second Sheet Sheet: New data input starts in {empty_row2}")
+
+#Finding Cell Range For inputting data to Tab "Grade-Summary"
+add_data2 = list_data
+new_row2 = int(len(add_data2)) + int(num_row2) - 1
+new_cell2 = 'C' + str(new_row2)
+
+gs_range2 = empty_row2 + ':' + new_cell2
+print(f"Second Sheet: Range to input new data is {gs_range2}")
+
+ws3.update(str(gs_range2), add_data2)
+
+#Show Table "Grade-Summary"
+values = ws3.get_all_records()
+df = pd.DataFrame(values)
+df.style
